@@ -1,6 +1,6 @@
-# vocabulary
+# flutter_cocovo
 
-A new Flutter application.
+A Flutter Vocabulary application.
 
 ## Getting Started
 

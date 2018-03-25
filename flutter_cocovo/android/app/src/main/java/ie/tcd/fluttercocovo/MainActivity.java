@@ -1,4 +1,4 @@
-package ie.tcd.vocabulary;
+package ie.tcd.fluttercocovo;
 
 import android.os.Bundle;
 

@@ -1,5 +1,5 @@
-name: vocabulary
-description: A new Flutter application.
+name: flutter_cocovo
+description: A Flutter Vocabulary application.
 
 dependencies:
   flutter:
