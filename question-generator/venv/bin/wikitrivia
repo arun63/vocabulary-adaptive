@@ -1,0 +1,10 @@
+#!/home/ubuntu/question-generator/venv/bin/python3.5
+# EASY-INSTALL-ENTRY-SCRIPT: 'wikitrivia','console_scripts','wikitrivia'
+__requires__ = 'wikitrivia'
+import sys
+from pkg_resources import load_entry_point
+
+if __name__ == '__main__':
+    sys.exit(
+        load_entry_point('wikitrivia', 'console_scripts', 'wikitrivia')()
+    )
