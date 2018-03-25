@@ -1,9 +1,11 @@
 from wikisentences import Wikisentences
 from flask import Flask
+from flask_cors import CORS
 from flask import request, jsonify
 import json
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route('/question', methods=['GET', 'POST'])
 def question():
