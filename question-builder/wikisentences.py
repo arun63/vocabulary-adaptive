@@ -4,22 +4,22 @@ from textblob import TextBlob
 import re
 import wikipedia
 
-class Article:
+class Wikisentences:
     def __init__(self, title):
         self.page = wikipedia.page(title)
         self.summary = TextBlob(self.page.summary)
 
-    def generate_trivia_sentences(self):
+    def generate_sentences(self):
         sentences = self.summary.sentences
         del sentences[0]
 
-        trivia_sentences = []
+        all_sentences = []
         for sentence in sentences:
-            trivia = self.evaluate_sentence(sentence)
-            if trivia:
-                trivia_sentences.append(trivia)
+            all_frame_sent = self.evaluate_sentence(sentence)
+            if all_frame_sent:
+                all_sentences.append(all_frame_sent)
 
-        return trivia_sentences
+        return all_sentences
 
     def get_similar_words(self, word):
         synsets = wn.synsets(word, pos='n')
@@ -67,16 +67,16 @@ class Article:
         if len(replace_nouns) == 0:
             return None
 
-        trivia = {
+        all_frame_sentences = {
             'title': self.page.title,
             'url': self.page.url,
             'answer': ' '.join(replace_nouns)
         }
 
         if len(replace_nouns) == 1:
-            trivia['similar_words'] = self.get_similar_words(replace_nouns[0])
+            all_frame_sentences['similar_words'] = self.get_similar_words(replace_nouns[0])
         else:
-            trivia['similar_words'] = []
+            all_frame_sentences['similar_words'] = []
 
         replace_phrase = ' '.join(replace_nouns)
         blanks_phrase = ('__________ ' * len(replace_nouns)).strip()
@@ -84,5 +84,5 @@ class Article:
         expression = re.compile(re.escape(replace_phrase), re.IGNORECASE)
         sentence = expression.sub(blanks_phrase, str(sentence), count=1)
 
-        trivia['question'] = sentence
-        return trivia
+        all_frame_sentences['question'] = sentence
+        return all_frame_sentences

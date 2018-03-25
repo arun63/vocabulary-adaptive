@@ -1,4 +1,0 @@
-
-        [console_scripts]
-        wikitrivia=wikitrivia.scripts.wikitrivia:generate_trivia
-    
