@@ -1,0 +1,15 @@
+{
+    "_host": "http://ec2-34-245-103-29.eu-west-1.compute.amazonaws.com",
+    "host":"http://localhost:5000",
+    "port": "5000",
+    "db_host": "127.0.0.1",
+    "db": "cocovo",
+    "db_port": "5432",
+    "db_user": "postgres",
+    "db_password": "postgres",
+    "table": {
+        "user_table": "users",
+        "word_table": "words",
+        "game_table": "game"
+    }
+}
