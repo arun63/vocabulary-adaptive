@@ -10,7 +10,6 @@ class DomainWordMapper:
     def addOffset(self,synoff):
         return str(synoff).zfill(8)
 
-
     def readWNDomain(self, file):
         f = open(file, "r")
         for line in f:
@@ -45,6 +44,9 @@ class DomainWordMapper:
             f.write(sb)
         f.close()
 
+    def getAllWNDomains(self):
+        
+
     def getDomains(self):
         self.readWNDomain(self._filePath['_wndomain'])
         self.getAllSynsets()
@@ -62,7 +64,7 @@ class DomainWordMapper:
                 offset = self._synsets[str(syn.name())]
                 domain = self._domains.get(offset)
                 if domain is not None:
-                    sb += synset+ "\t" + domain + "\n"
+                    sb += domain + "\n"
                     mappingDomains[synset] = domain
             else:
                 sb += synset + "\t" + "domain_unknown\n"
@@ -79,3 +81,40 @@ class DomainWordMapper:
             wordsdomain.close()
 
         return numDomain
+
+
+    def getDomainFromPara(self, words_list):
+        self.getAllSynsets()
+        mappingDomains = {}
+
+        if self._filePath['words'] and self._filePath['wordsdomain']:
+            words = open(self._filePath['words'], "r")
+            wordsdomain = open(self._filePath['wordsdomain'], "w")
+
+        if words_list:
+            print (words_list)
+            for i in range(len(words_list)):
+                syn = wordnet.synsets(words_list[i])
+                if syn:
+                    sb = ""
+                    if str(syn[0].name()) in self._synsets:
+                        offset = self._synsets[str(syn[0].name())]
+                        domain = self._domains.get(offset)
+                        if domain is not None:
+                            sb += domain + "\n"
+                            mappingDomains[synset] = domain
+                    else:
+                        sb += synset + "\t" + "domain_unknown\n"
+                        mappingDomains[synset] = "domain_unknown"
+                    if wordsdomain:
+                        wordsdomain.write(sb)
+
+            numDomain = self.numOfDomains(mappingDomains)
+            if self._filePath['domainfreq']:
+                self.writeDataToFile(self._filePath['domainfreq'], numDomain)
+
+            if self._filePath['words'] and self._filePath['wordsdomain']:
+                words.close()
+                wordsdomain.close()
+
+            return numDomain
