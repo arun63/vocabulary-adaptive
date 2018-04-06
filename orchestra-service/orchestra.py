@@ -5,8 +5,9 @@ from flask import Flask
 import requests
 import json
 from utils import utils
-import psycopg2
+# import psycopg2
 
+state = list()
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -23,6 +24,7 @@ def orchestrate():
 	if request.method == 'POST':
 		obj = dict();
 		data = request.get_json()
+		counter = 0
 
 		try:
 			data and data['word_rating'] and data['player_rating'] and data['time_taken'] and data['won']
@@ -37,90 +39,84 @@ def orchestrate():
 			time = data['time_taken']
 			won = data['won']
 
+			# print word_rating
+			# print player_rating
+			# print time
+			# print won
+
 			# Elo
+
 			try:
-				url = "http://localhost:8082/elo/"
-				response = requests.request("POST", url, data=jsonify({ "player": player_rating, "word": word_rating, "win": won}))
+				url = "http://ec2-34-244-237-146.eu-west-1.compute.amazonaws.com:8082/elo/"
+				response = requests.post(url, json={ "player": player_rating, "word": word_rating, "win": won})
 			except Exception as e:
 				return jsonify({ 'status': 500, 'message': 'internal server error'})
 			else:
-				print response.json()
-			finally:
-				pass
+				resp = response.json()
+				new_player_rating = resp['player']
+				new_word_rating = resp['word']
 
-			# connecting to remote postgres DB
-			# try:
-			# 	conn = psycopg2.connect(
-			# 		database=db['db'],
-			# 		user=db['db_user'],
-			# 		password=db['db_password'],
-			# 		host = db['db_host'],
-			# 		port = db['db_port']
-			# 	)
-			# except Exception as e:
-			# 	print 'unable to connect to postgres - setting value of lambda to 1'
-			# 	print e
-			# else:
-			# 	cursor = conn.cursor()
-			# finally:
-			# 	cursor.execute("select relname from pg_class where relkind='r' and relname !~ '^(pg_|sql_)';")
-			# 	print cursor.fetchall()
-				
-
-
-			# lamdba must be fetched from the database on every transaction
-			# util = utils()
-			# lam = util.calculate_lambda(player_rating, word_rating)
-			# print lam
-
-			resp = dict()
-			# replace with the remote instance host
-			if type(player_rating) and type(word_rating) and type(time) == float or int:
-				# call lambda word decay service
+				# send the new player and word rating to decay along with time taken
 				try:
-					url = "http://localhost:8084/decay/"
-					payload = { "elo_word": word_rating, "elo_player": player_rating, "time_taken": time }
-					headers = { 'content-type': "application/json", 'cache-control': "no-cache"}
-					response = requests.request("POST", url, data=jsonify(payload), headers=jsonify(headers))
+					url = "http://ec2-34-244-237-146.eu-west-1.compute.amazonaws.com:8084/decay/"
+					response = requests.post(url, json={ "elo_player": new_player_rating, "elo_word": new_word_rating, "time_taken": time})
 				except Exception as e:
-					return jsonify({'status': 500, 'message': 'unable to connect to decay service'})
+					return jsonify({ 'status': 500, 'message': 'internal server error'})
 				else:
-					resp = response.json()
-					lam = resp['decay']
-					print lam
-					return response.json()
+					# success
+					word_list = { 'laconic': 5, 'intrepid': 4.9, 'reticent': 4.8, 'terse': 4.7, 'pithy': 4.6, 'churlish': 4.5, 'furtive': 4.5,  'polyglot': 4.4, 'veracious': 4.3, 'mercurial': 4.2, 'amenable': 4.1, 'insipid': 4.0, 'pragmatic': 3.9, 'arduous': 3.8, 'profligate': 3.7, 'prosaic': 3.6, 'obsequious': 3.5, 'capricious': 3.4, 'fortuitous':3.3, 'orthodox': 3.2, 'pellucid': 3.1, 'abash': 2.9, 'abase': 2.8};
+					# pull words from database - rank them in order
+					
+					resp_ = response.json()
+					lam = resp_['decay']
+					threshold = (new_player_rating  + new_word_rating) * lam
+					
+					print 'Threshold : ', threshold
 
-					threshold = (player_rating * lam)  + (word_rating * lam)
-					# if threshold >= 150:
-					# 	# call hard word
-					# 	try:
-					# 		response = requests.request("GET", host+'/word/hard')
-					# 	except Exception as e:
-					# 		return jsonify({'status': 500, 'message': 'unable tp connect to hard word service'})
-					# 	else:
-					# 		return jsonify(response.json())
+					# try:
+					# 	url = "http://ec2-34-251-196-31.eu-west-1.compute.amazonaws.com:8090/question"
+					# 	response = requests.post(url, json={ "words": str(key) })
+					# except Exception as e:
+					# 	return jsonify({'status': 500, 'message': 'question service not callable'})
+					# else:
+					# 	resp = response.json()
+					# 	return jsonify({'status': 200, 'word': key})
+					
+
+					if threshold >= 0 and threshold <= 1.5:
+						print 'hard'
+						# call hard word
+						val = min(word_list.values(), key=lambda x:abs (x - threshold))
+						print val
+						for key, value in word_list.iteritems():
+							if val == value:
+								print key
+								state.append(key)
+								return jsonify({'status': 200, 'message': key})
+								
+
+					elif threshold > 1.5 and threshold <= 3.2:
+						print 'medium'
+						# call medium word
+						val = min(word_list.values(), key=lambda x:abs (x - threshold))
+						print val
+						for key, value in word_list.iteritems():
+							if val == value:
+								print key
+								state.append(key)
+								return jsonify({'status': 200, 'message': key})
 
 
-					# elif threshold < 150 and threshold > 100:
-					# 	# call medium word
-					# 	try:
-					# 		response = requests.request("GET" , host+'/word/medium')
-					# 	except Exception as e:
-					# 		return jsonify({'status': 500, 'message': 'unable to connect to medium word service'})
-					# 	else:
-					# 		return jsonify(response.json())
+					elif threshold > 3.2:
+						print 'easy'
+						val = min(word_list.values(), key=lambda x:abs (x - threshold))
+						print val
+						for key, value in word_list.iteritems():
+							if val == value:
+								print key
+								state.append(key)
+								return jsonify({'status': 500, 'message': key})
 
-
-					# elif threshold < 100 and threshold >= 0:
-					# 	# call easy word
-					# 	try:
-					# 		response = requests.request("GET" , host+'/word/easy')
-					# 	except Exception as e:
-					# 		return jsonify({'status': 500, 'message': 'unable to connect to easy word service'})
-					# 	else:
-					# 		return jsonify(response.json())
-			else:
-				return jsonify({'status':400, 'message': 'bad request'})
 
 	elif request.method == "GET":
 		return jsonify({'status': 400, 'message': 'method not allowed'})
