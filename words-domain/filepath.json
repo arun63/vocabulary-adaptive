@@ -1,0 +1,8 @@
+{
+
+  "_wndomain" : "wn-domains-3.2/wn-domains-3.2-20070223",
+  "words" : "sample_words.txt",
+  "wordsdomain" : "word_with_domain.txt",
+  "domainfreq" : "domain_freq.txt"
+
+}

@@ -1,4 +1,5 @@
 textblob==0.9.0
 wikipedia==1.4.0
-Flask==0.13.dev0
+Flask==0.12.2
 Flask-Cors==3.0.3
+nltk==3.2.5
