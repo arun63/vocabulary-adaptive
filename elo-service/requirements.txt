@@ -1,0 +1,6 @@
+skills==0.3.0
+numpy==1.13.3
+trueskill==0.4.4
+Flask==0.12.2
+Flask-Cors==3.0.3
+elo==0.1.1

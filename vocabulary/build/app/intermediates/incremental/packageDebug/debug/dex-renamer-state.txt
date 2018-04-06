@@ -1,0 +1,4 @@
+#Sun Mar 25 20:59:06 IST 2018
+base.0=/home/bhargav/vocabulary-adaptive/vocabulary/build/app/intermediates/transforms/dexMerger/debug/0
+path.0=classes.dex
+renamed.0=classes.dex
