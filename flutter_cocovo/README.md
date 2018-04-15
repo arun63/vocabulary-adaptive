@@ -1,6 +1,6 @@
-# flutter_cocovo
+# flutter_adaptive
 
-A Flutter Vocabulary application.
+A new Flutter application.
 
 ## Getting Started
 

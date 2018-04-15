@@ -1,10 +1,10 @@
-name: flutter_cocovo
-description: A Flutter Vocabulary application.
+name: flutter_adaptive
+description: A new Flutter application.
 
 dependencies:
   flutter:
     sdk: flutter
-
+  http: ^0.11.3
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.0
